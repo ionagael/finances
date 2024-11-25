@@ -1,77 +1,59 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const incomeList = document.getElementById("income-list");
-    const expenseList = document.getElementById("expense-list");
-    const balanceEl = document.getElementById("balance");
+// Replace these with your actual API Key and Sheet ID
+const API_KEY = 'AIzaSyDlnhiz-OV6TRIFBfZOOn39BOXo5gkShfw';
+const SHEET_ID = 'https://docs.google.com/spreadsheets/d/1n8bK9Aq5HmChRyi8y70pUe0EVkUGTPU3cC8Hx-LdLMs/edit?gid=0#gid=0';
 
-    let income = [];
-    let expenses = [];
-    let balance = 0;
+// Function to append data to Google Sheets
+const appendToGoogleSheet = (data) => {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            values: [data],
+        }),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log('Data added to Google Sheets:', data);
+        })
+        .catch((error) => {
+            console.error('Error adding data to Google Sheets:', error);
+        });
+};
 
-    // Load Data from Local Storage
-    const loadFromStorage = () => {
-        const storedIncome = JSON.parse(localStorage.getItem("income")) || [];
-        const storedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
-        income = storedIncome;
-        expenses = storedExpenses;
+// Modify existing forms to send data to Google Sheets
+document.getElementById("income-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const description = document.getElementById("income-description").value;
+    const amount = parseFloat(document.getElementById("income-amount").value);
 
-        income.forEach((item) => addItem(incomeList, item.description, item.amount));
-        expenses.forEach((item) => addItem(expenseList, item.description, item.amount));
+    // Add to local list
+    income.push({ description, amount });
+    addItem(incomeList, description, amount);
+    updateBalance();
+    saveToStorage();
 
-        updateBalance();
-    };
+    // Append to Google Sheets
+    appendToGoogleSheet([description, amount, "Income"]);
 
-    // Save Data to Local Storage
-    const saveToStorage = () => {
-        localStorage.setItem("income", JSON.stringify(income));
-        localStorage.setItem("expenses", JSON.stringify(expenses));
-    };
+    e.target.reset();
+});
 
-    // Update Balance
-    const updateBalance = () => {
-        balance = income.reduce((sum, item) => sum + item.amount, 0) -
-                  expenses.reduce((sum, item) => sum + item.amount, 0);
-        balanceEl.textContent = balance.toFixed(2);
-        localStorage.setItem("balance", balance); // Persist the balance
-    };
+document.getElementById("expense-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const description = document.getElementById("expense-description").value;
+    const amount = parseFloat(document.getElementById("expense-amount").value);
 
-    // Add Item to UI and Array
-    const addItem = (list, description, amount) => {
-        const item = document.createElement("li");
-        item.textContent = `${description}: $${amount.toFixed(2)}`;
-        list.appendChild(item);
-    };
+    // Add to local list
+    expenses.push({ description, amount });
+    addItem(expenseList, description, amount);
+    updateBalance();
+    saveToStorage();
 
-    // Income Form Submission
-    document.getElementById("income-form").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const description = document.getElementById("income-description").value;
-        const amount = parseFloat(document.getElementById("income-amount").value);
-        income.push({ description, amount });
-        addItem(incomeList, description, amount);
-        updateBalance();
-        saveToStorage();
-        e.target.reset();
-    });
+    // Append to Google Sheets
+    appendToGoogleSheet([description, amount, "Expense"]);
 
-    // Expense Form Submission
-    document.getElementById("expense-form").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const description = document.getElementById("expense-description").value;
-        const amount = parseFloat(document.getElementById("expense-amount").value);
-        expenses.push({ description, amount });
-        addItem(expenseList, description, amount);
-        updateBalance();
-        saveToStorage();
-        e.target.reset();
-    });
-
-    // Register Service Worker
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./service-worker.js')
-            .then(() => console.log('Service Worker Registered'))
-            .catch(err => console.error('Service Worker Registration Failed:', err));
-    }
-
-    // Initialize App
-    loadFromStorage();
+    e.target.reset();
 });
