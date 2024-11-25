@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
         e.target.reset();
     });
 
-    // Service Worker Registration
+    // Register Service Worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./service-worker.js')
             .then(() => console.log('Service Worker Registered'))
