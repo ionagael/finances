@@ -1,40 +1,44 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#ffffff">
-    <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css">
-    <title>Financial Tracker</title>
+    <title>Google Sheets Append</title>
 </head>
 <body>
-    <h1>Financial Tracker</h1>
-    <div id="app">
-        <section>
-            <h2>Income</h2>
-            <form id="income-form">
-                <input type="text" id="income-description" placeholder="Description" required>
-                <input type="number" id="income-amount" placeholder="Amount" required>
-                <button type="submit">Add Income</button>
-            </form>
-            <ul id="income-list"></ul>
-        </section>
-        <section>
-            <h2>Expenses</h2>
-            <form id="expense-form">
-                <input type="text" id="expense-description" placeholder="Description" required>
-                <input type="number" id="expense-amount" placeholder="Amount" required>
-                <button type="submit">Add Expense</button>
-            </form>
-            <ul id="expense-list"></ul>
-        </section>
-        <section>
-            <h2>Balance</h2>
-            <p id="balance">0</p>
-        </section>
-    </div>
-    <script src="app.js"></script>
+    <h1>Append a Number to Google Sheets</h1>
+    <button id="append-button">Add 1 to Google Sheet</button>
+
+    <script>
+        const API_KEY = 'AIzaSyDlnhiz-OV6TRIFBfZOOn39BOXo5gkShfw';
+        const SHEET_ID = '1n8bK9Aq5HmChRyi8y70pUe0EVkUGTPU3cC8Hx-LdLMs';
+        
+        document.getElementById('append-button').addEventListener('click', () => {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A2:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    values: [[1]],
+                }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Successfully added to Google Sheets:', data);
+                alert('Added 1 to the Google Sheet!');
+            })
+            .catch(error => {
+                console.error('Error adding data to Google Sheets:', error);
+                alert('Failed to add data. Check the console for details.');
+            });
+        });
+    </script>
 </body>
 </html>
