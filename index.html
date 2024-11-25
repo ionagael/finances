@@ -3,42 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Sheets Append</title>
+    <title>Google Sheets OAuth</title>
 </head>
 <body>
     <h1>Append a Number to Google Sheets</h1>
-    <button id="append-button">Add 1 to Google Sheet</button>
+    <button id="authorize-button">Authorize</button>
+    <button id="append-button" disabled>Add 1 to Google Sheet</button>
 
     <script>
+        const CLIENT_ID = '195309289345-0fc12fttvb41kqmg60j5fmtbf74l3pl1.apps.googleusercontent.com';
         const API_KEY = 'AIzaSyDlnhiz-OV6TRIFBfZOOn39BOXo5gkShfw';
         const SHEET_ID = '1n8bK9Aq5HmChRyi8y70pUe0EVkUGTPU3cC8Hx-LdLMs';
-        
+        const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
+
+        let gapiLoaded = false;
+
+        // Load GAPI client library
+        function loadGapi() {
+            gapi.load('client:auth2', () => {
+                gapi.client.init({
+                    apiKey: API_KEY,
+                    clientId: CLIENT_ID,
+                    discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+                    scope: SCOPES,
+                }).then(() => {
+                    gapiLoaded = true;
+                    updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+                    gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+                }).catch(error => {
+                    console.error('Error loading GAPI client:', error);
+                });
+            });
+        }
+
+        // Update UI based on sign-in status
+        function updateSigninStatus(isSignedIn) {
+            const appendButton = document.getElementById('append-button');
+            if (isSignedIn) {
+                appendButton.disabled = false;
+            } else {
+                appendButton.disabled = true;
+            }
+        }
+
+        // Sign in the user
+        document.getElementById('authorize-button').addEventListener('click', () => {
+            if (!gapiLoaded) return;
+            gapi.auth2.getAuthInstance().signIn();
+        });
+
+        // Append data to Google Sheets
         document.getElementById('append-button').addEventListener('click', () => {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A2:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
+            const range = 'Sheet1!A2:A';
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED`;
+
+            gapi.client.sheets.spreadsheets.values.append({
+                spreadsheetId: SHEET_ID,
+                range: range,
+                valueInputOption: 'USER_ENTERED',
+                resource: {
                     values: [[1]],
-                }),
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Successfully added to Google Sheets:', data);
+                },
+            }).then(response => {
+                console.log('Data added:', response.result);
                 alert('Added 1 to the Google Sheet!');
-            })
-            .catch(error => {
-                console.error('Error adding data to Google Sheets:', error);
+            }).catch(error => {
+                console.error('Error adding data:', error);
                 alert('Failed to add data. Check the console for details.');
             });
         });
+
+        // Load the GAPI client library when the page loads
+        window.onload = loadGapi;
     </script>
 </body>
 </html>
