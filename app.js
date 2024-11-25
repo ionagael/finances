@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", () => {
     const incomeList = document.getElementById("income-list");
     const expenseList = document.getElementById("expense-list");
@@ -38,4 +37,11 @@ document.addEventListener("DOMContentLoaded", () => {
         updateBalance();
         e.target.reset();
     });
+
+    // Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js')
+            .then(() => console.log('Service Worker Registered'))
+            .catch(err => console.error('Service Worker Registration Failed:', err));
+    }
 });
