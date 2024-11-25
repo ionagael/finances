@@ -4,7 +4,7 @@ const SHEET_ID = 'https://docs.google.com/spreadsheets/d/1n8bK9Aq5HmChRyi8y70pUe
 
 // Function to append data to Google Sheets
 const appendToGoogleSheet = (data) => {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${Finances}/values/Sheet1!A1:append?valueInputOption=USER_ENTERED&key=${AIzaSyDlnhiz-OV6TRIFBfZOOn39BOXo5gkShfw}`;
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${Finances}/values/Sheet1!A1:append?valueInputOption=USER_ENTERED&key=${SHEET_ID}`;
     fetch(url, {
         method: 'POST',
         headers: {
