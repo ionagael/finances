@@ -1,6 +1,6 @@
 // Replace these with your actual API Key and Sheet ID
-const API_KEY = 'YOUR_API_KEY';
-const SHEET_ID = 'YOUR_SHEET_ID';
+const API_KEY = 'AIzaSyDlnhiz-OV6TRIFBfZOOn39BOXo5gkShfw';
+const SHEET_ID = 'https://docs.google.com/spreadsheets/d/1n8bK9Aq5HmChRyi8y70pUe0EVkUGTPU3cC8Hx-LdLMs/edit?gid=0#gid=0';
 
 // Function to append data to Google Sheets
 const appendToGoogleSheet = (description, amount, type) => {
