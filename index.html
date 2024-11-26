@@ -8,7 +8,7 @@
 </head>
 <body>
     <h1>Append a Number to Google Sheets</h1>
-    <button id="authorize-button">Authorize</button>
+    <button id="authorize-button" disabled>Authorize</button>
     <button id="append-button" disabled>Add 1 to Google Sheet</button>
 
     <script>
@@ -19,7 +19,7 @@
 
         let gapiInitialized = false;
 
-        // Load GAPI client and initialize it
+        // Load GAPI client and initialize
         function loadGapiClient() {
             console.log('Loading GAPI library...');
             gapi.load('client:auth2', () => {
@@ -30,6 +30,9 @@
                 }).then(() => {
                     console.log('GAPI client initialized successfully.');
                     gapiInitialized = true;
+
+                    // Enable the "Authorize" button
+                    document.getElementById('authorize-button').disabled = false;
 
                     // Listen for sign-in status changes
                     const authInstance = gapi.auth2.getAuthInstance();
@@ -62,7 +65,7 @@
         // Handle "Authorize" button click
         document.getElementById('authorize-button').addEventListener('click', () => {
             if (!gapiInitialized) {
-                alert('GAPI is not initialized. Please reload the page.');
+                alert('GAPI is not initialized. Please wait and try again.');
                 return;
             }
             gapi.auth2.getAuthInstance().signIn().then(() => {
