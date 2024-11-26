@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Sheets OAuth</title>
-    <script src="https://apis.google.com/js/api.js" onload="loadGapiClient()" onerror="console.error('Failed to load GAPI library.')"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
 </head>
 <body>
     <h1>Append a Number to Google Sheets</h1>
@@ -96,6 +96,16 @@
                 alert('Failed to add data. Check the console for details.');
             });
         });
+
+        // Explicitly call loadGapiClient once the script is loaded
+        window.onload = () => {
+            if (typeof gapi !== 'undefined') {
+                loadGapiClient();
+            } else {
+                console.error('GAPI library not loaded.');
+                alert('Failed to load GAPI library. Check your network connection.');
+            }
+        };
     </script>
 </body>
 </html>
