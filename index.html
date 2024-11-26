@@ -8,12 +8,11 @@
 </head>
 <body>
     <h1>Append a Number to Google Sheets</h1>
-    <button id="authorize-button" disabled>Authorize</button>
+    <button id="authorize-button">Authorize</button>
     <button id="append-button" disabled>Add 1 to Google Sheet</button>
 
     <script>
         const CLIENT_ID = '195309289345-0fc12fttvb41kqmg60j5fmtbf74l3pl1.apps.googleusercontent.com'; // OAuth Client ID
-        const API_KEY = 'AIzaSyDlnhiz-OV6TRIFBfZOOn39BOXo5gkShfw'; // API Key
         const SHEET_ID = '1n8bK9Aq5HmChRyi8y70pUe0EVkUGTPU3cC8Hx-LdLMs'; // Spreadsheet ID
         const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
@@ -24,7 +23,6 @@
             console.log('Loading GAPI library...');
             gapi.load('client:auth2', () => {
                 gapi.client.init({
-                    apiKey: API_KEY,
                     clientId: CLIENT_ID,
                     scope: SCOPES,
                 }).then(() => {
@@ -97,7 +95,7 @@
             });
         });
 
-        // Explicitly call loadGapiClient once the script is loaded
+        // Load GAPI client when the page loads
         window.onload = () => {
             if (typeof gapi !== 'undefined') {
                 loadGapiClient();
