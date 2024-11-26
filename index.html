@@ -15,7 +15,9 @@
         const RANGE = 'Sheet1!A2:A'; // Range to append data
 
         document.getElementById('append-button').addEventListener('click', () => {
-            const url = https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}:append?valueInputOption=USER_ENTERED&key=${API_KEY};
+const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+
+
 
             const requestBody = {
                 values: [[1]],
