@@ -3,43 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Sheets API Key</title>
+    <title>Google Sheets OAuth</title>
+    <script src="https://apis.google.com/js/api.js"></script>
 </head>
 <body>
     <h1>Append a Number to Google Sheets</h1>
-    <button id="append-button">Add 1 to Google Sheet</button>
+    <button id="authorize-button">Authorize</button>
+    <button id="append-button" disabled>Add 1 to Google Sheet</button>
 
     <script>
-        const API_KEY = 'AIzaSyDlnhiz-OV6TRIFBfZOOn39BOXo5gkShfw'; // Your API Key
-        const SHEET_ID = '1n8bK9Aq5HmChRyi8y70pUe0EVkUGTPU3cC8Hx-LdLMs'; // Your Sheet ID
-        const RANGE = 'Sheet1!A2:A'; // Range to append data
+        const CLIENT_ID = '195309289345-0fc12fttvb41kqmg60j5fmtbf74l3pl1.apps.googleusercontent.com'; // Replace with your OAuth Client ID
+        const API_KEY = 'AIzaSyDlnhiz-OV6TRIFBfZOOn39BOXo5gkShfw'; // Optional, for API access
+        const SHEET_ID = '1n8bK9Aq5HmChRyi8y70pUe0EVkUGTPU3cC8Hx-LdLMs'; // Replace with your spreadsheet ID
+        const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
+        let gapiInitialized = false;
+
+        // Load GAPI client
+        function loadGapiClient() {
+            gapi.load('client:auth2', () => {
+                gapi.client.init({
+                    apiKey: API_KEY,
+                    clientId: CLIENT_ID,
+                    scope: SCOPES,
+                }).then(() => {
+                    gapiInitialized = true;
+                    updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+                    gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+                }).catch((error) => {
+                    console.error('Error initializing GAPI client:', error);
+                });
+            });
+        }
+
+        // Update the UI based on sign-in status
+        function updateSigninStatus(isSignedIn) {
+            const authorizeButton = document.getElementById('authorize-button');
+            const appendButton = document.getElementById('append-button');
+            if (isSignedIn) {
+                authorizeButton.style.display = 'none';
+                appendButton.disabled = false;
+            } else {
+                authorizeButton.style.display = 'block';
+                appendButton.disabled = true;
+            }
+        }
+
+        // Sign in the user
+        document.getElementById('authorize-button').addEventListener('click', () => {
+            if (!gapiInitialized) return;
+            gapi.auth2.getAuthInstance().signIn();
+        });
+
+        // Append data to the Google Sheet
         document.getElementById('append-button').addEventListener('click', () => {
-const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
-
-
+            const range = 'Sheet1!A2:A'; // Replace with your range
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED`;
 
             const requestBody = {
-                values: [[1]],
+                values: [[1]], // Data to append
             };
 
-            fetch(url, {
+            gapi.client.request({
+                path: url,
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestBody),
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Data added:', data);
+                body: requestBody,
+            }).then(response => {
+                console.log('Data added:', response);
                 alert('Added 1 to the Google Sheet!');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to add data. Check the console for details.');
+            }).catch(error => {
+                console.error('Error adding data:', error);
+                alert('Failed to add data. Check console for details.');
             });
         });
+
+        // Load the GAPI client when the page loads
+        window.onload = loadGapiClient;
     </script>
 </body>
 </html>
