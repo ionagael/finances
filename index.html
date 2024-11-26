@@ -3,107 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Sheets OAuth</title>
-    <script src="https://apis.google.com/js/api.js"></script>
+    <title>Firebase Realtime Database</title>
+    <script type="module">
+        // Import the Firebase SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBA2pJFV4PBA0izhoBtAiNv2mZz7hrzYsc",
+            authDomain: "finances-a9fbd.firebaseapp.com",
+            databaseURL: "https://finances-a9fbd-default-rtdb.firebaseio.com", // Add your Realtime Database URL
+            projectId: "finances-a9fbd",
+            storageBucket: "finances-a9fbd.appspot.com",
+            messagingSenderId: "897693488778",
+            appId: "1:897693488778:web:7c7deef3463ce1dae03f73"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Function to add a number to the database
+        function addNumberToDatabase() {
+            const dbRef = ref(database, 'numbers'); // Reference to the "numbers" node
+            push(dbRef, 1) // Push the number `1` to the database
+                .then(() => {
+                    alert('Number added to Firebase Realtime Database!');
+                    console.log('Number added successfully!');
+                })
+                .catch((error) => {
+                    console.error('Error adding number to database:', error);
+                });
+        }
+
+        // Attach event listener to button
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('add-number').addEventListener('click', addNumberToDatabase);
+        });
+    </script>
 </head>
 <body>
-    <h1>Append a Number to Google Sheets</h1>
-    <button id="authorize-button">Authorize</button>
-    <button id="append-button" disabled>Add 1 to Google Sheet</button>
-
-    <script>
-        const CLIENT_ID = '195309289345-0fc12fttvb41kqmg60j5fmtbf74l3pl1.apps.googleusercontent.com'; // OAuth Client ID
-        const SHEET_ID = '1n8bK9Aq5HmChRyi8y70pUe0EVkUGTPU3cC8Hx-LdLMs'; // Spreadsheet ID
-        const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
-
-        let gapiInitialized = false;
-
-        // Load GAPI client and initialize
-        function loadGapiClient() {
-            console.log('Loading GAPI library...');
-            gapi.load('client:auth2', () => {
-                gapi.client.init({
-                    clientId: CLIENT_ID,
-                    scope: SCOPES,
-                }).then(() => {
-                    console.log('GAPI client initialized successfully.');
-                    gapiInitialized = true;
-
-                    // Enable the "Authorize" button
-                    document.getElementById('authorize-button').disabled = false;
-
-                    // Listen for sign-in status changes
-                    const authInstance = gapi.auth2.getAuthInstance();
-                    authInstance.isSignedIn.listen(updateSigninStatus);
-
-                    // Handle initial sign-in state
-                    updateSigninStatus(authInstance.isSignedIn.get());
-                }).catch(error => {
-                    console.error('Error initializing GAPI client:', error);
-                    alert('Failed to initialize GAPI client. Check the console for details.');
-                });
-            });
-        }
-
-        // Update UI based on user's sign-in status
-        function updateSigninStatus(isSignedIn) {
-            const authorizeButton = document.getElementById('authorize-button');
-            const appendButton = document.getElementById('append-button');
-            if (isSignedIn) {
-                console.log('User is signed in.');
-                authorizeButton.style.display = 'none';
-                appendButton.disabled = false;
-            } else {
-                console.log('User is not signed in.');
-                authorizeButton.style.display = 'block';
-                appendButton.disabled = true;
-            }
-        }
-
-        // Handle "Authorize" button click
-        document.getElementById('authorize-button').addEventListener('click', () => {
-            if (!gapiInitialized) {
-                alert('GAPI is not initialized. Please wait and try again.');
-                return;
-            }
-            gapi.auth2.getAuthInstance().signIn().then(() => {
-                console.log('User signed in successfully.');
-            }).catch(error => {
-                console.error('Error during sign-in:', error);
-                alert('Failed to sign in. Check the console for details.');
-            });
-        });
-
-        // Handle "Add 1 to Google Sheet" button click
-        document.getElementById('append-button').addEventListener('click', () => {
-            const range = 'Sheet1!A2:A'; // Range to append data
-            const requestBody = {
-                values: [[1]], // Data to append
-            };
-
-            gapi.client.sheets.spreadsheets.values.append({
-                spreadsheetId: SHEET_ID,
-                range: range,
-                valueInputOption: 'USER_ENTERED',
-                resource: requestBody,
-            }).then(response => {
-                console.log('Data added:', response);
-                alert('Added 1 to the Google Sheet!');
-            }).catch(error => {
-                console.error('Error adding data:', error);
-                alert('Failed to add data. Check the console for details.');
-            });
-        });
-
-        // Load GAPI client when the page loads
-        window.onload = () => {
-            if (typeof gapi !== 'undefined') {
-                loadGapiClient();
-            } else {
-                console.error('GAPI library not loaded.');
-                alert('Failed to load GAPI library. Check your network connection.');
-            }
-        };
-    </script>
+    <h1>Firebase Realtime Database Example</h1>
+    <button id="add-number">Add 1 to Firebase</button>
 </body>
 </html>
